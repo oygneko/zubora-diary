@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fbfcfb">
+  <meta name="description" content="書きたい項目だけを選んで、毎日の記録を残すシンプルな日記アプリ。">
+  <title>ずぼら日記</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#write" aria-label="ずぼら日記 ホーム">
+        <span class="brand-mark" aria-hidden="true">ず</span>
+        <span class="brand-copy"><strong>ずぼら日記</strong><small>MY PRIVATE JOURNAL</small></span>
+      </a>
+      <nav class="main-nav" aria-label="メインメニュー">
+        <button class="nav-button is-active" type="button" data-view="write" aria-current="page">日記を書く</button>
+        <button class="nav-button" type="button" data-view="archive">日記一覧</button>
+        <button class="nav-button" type="button" data-view="settings">項目設定</button>
+      </nav>
+      <div class="topbar-note"><span class="status-dot"></span> この端末に保存</div>
+    </header>
+
+    <main>
+      <section class="view is-visible" id="view-write" aria-labelledby="write-heading">
+        <div class="page-heading">
+          <p class="eyebrow">A SPACE FOR YOUR DAYS</p>
+          <h1 id="write-heading">今日を、好きな分だけ。</h1>
+          <p class="page-intro">書きたいことだけ選んで、あなたのペースで残しましょう。</p>
+        </div>
+
+        <div class="write-layout">
+          <section class="panel compose-panel" aria-label="日記の入力">
+            <div class="panel-header">
+              <div>
+                <p class="section-kicker">NEW JOURNAL</p>
+                <h2 id="editor-heading">今日の記録</h2>
+              </div>
+              <label class="date-control" for="entry-date">
+                <span>日付</span>
+                <input id="entry-date" type="date">
+              </label>
+            </div>
+
+            <div class="field-picker-block">
+              <div class="subheading-row">
+                <div>
+                  <h3>書く項目を選ぶ</h3>
+                  <p>選んだ項目だけ、下に入力欄が表示されます。</p>
+                </div>
+                <button class="text-button" id="clear-selection" type="button">選択をクリア</button>
+              </div>
+              <div class="field-picker" id="field-picker" aria-live="polite"></div>
+            </div>
+
+            <div class="editor-divider"></div>
+            <div class="subheading-row editor-label-row">
+              <div>
+                <h3>記録する</h3>
+                <p id="editor-hint">項目を選ぶと入力欄がここに表示されます。</p>
+              </div>
+              <span class="selected-count" id="selected-count">0 項目</span>
+            </div>
+            <div class="editor-fields" id="editor-fields"></div>
+
+            <div class="compose-footer">
+              <p class="save-message" id="save-message" role="status" aria-live="polite">日記はこのブラウザ内に保存されます。</p>
+              <div class="footer-actions">
+                <button class="button button-quiet" id="reset-editor" type="button">入力をリセット</button>
+                <button class="button button-primary" id="save-entry" type="button" disabled>日記を保存する <span aria-hidden="true">→</span></button>
+              </div>
+            </div>
+          </section>
+
+          <aside class="side-column">
+            <section class="quote-card">
+              <span class="quote-mark" aria-hidden="true">“</span>
+              <p>毎日きちんと書かなくてもいい。残したい日だけ、残したいことを。</p>
+              <span class="quote-caption">YOUR DAYS, YOUR WAY</span>
+            </section>
+            <section class="panel mini-stats">
+              <p class="section-kicker">YOUR JOURNAL</p>
+              <div class="stat-line"><span>これまでの日記</span><strong id="total-entry-count">0</strong></div>
+              <div class="stat-line"><span>登録している項目</span><strong id="total-field-count">0</strong></div>
+              <button class="inline-link" type="button" data-go-view="archive">過去の日記を見る <span aria-hidden="true">→</span></button>
+            </section>
+            <p class="privacy-note"><span aria-hidden="true">▱</span> 日記の内容はこのブラウザに保存され、GitHubには送信されません。ブラウザのデータ削除や端末変更に備えて、定期的にバックアップしてください。</p>
+          </aside>
+        </div>
+      </section>
+
+      <section class="view" id="view-archive" aria-labelledby="archive-heading" hidden>
+        <div class="page-heading archive-heading">
+          <p class="eyebrow">YOUR JOURNAL ARCHIVE</p>
+          <h1 id="archive-heading">これまでの日記</h1>
+          <p class="page-intro">書いた日の記録を、いつでも読み返せます。</p>
+        </div>
+        <section class="panel archive-panel">
+          <div class="archive-toolbar">
+            <div class="archive-count"><strong id="archive-count">0</strong><span> entries</span></div>
+            <label class="search-box"><span class="sr-only">日記を検索</span><span aria-hidden="true">⌕</span><input id="archive-search" type="search" placeholder="日付や内容で検索"></label>
+          </div>
+          <div class="entry-list" id="entry-list"></div>
+          <div class="empty-state" id="archive-empty" hidden>
+            <span class="empty-icon" aria-hidden="true">日</span>
+            <h2>まだ日記がありません</h2>
+            <p>最初の記録を、好きな項目から始めてみましょう。</p>
+            <button class="button button-primary" type="button" data-go-view="write">日記を書く <span aria-hidden="true">→</span></button>
+          </div>
+        </section>
+      </section>
+
+      <section class="view" id="view-settings" aria-labelledby="settings-heading" hidden>
+        <div class="page-heading">
+          <p class="eyebrow">MAKE IT YOURS</p>
+          <h1 id="settings-heading">日記の項目を整える</h1>
+          <p class="page-intro">書くときに選べる項目を、自分に合わせてカスタマイズできます。</p>
+        </div>
+        <div class="settings-layout">
+          <section class="panel settings-panel">
+            <div class="panel-header settings-header">
+              <div><p class="section-kicker">MY FIELDS</p><h2>登録済みの項目</h2></div>
+              <button class="button button-primary" id="add-field" type="button"><span aria-hidden="true">＋</span> 項目を追加</button>
+            </div>
+            <p class="settings-description">項目を削除しても、過去の日記に書いた内容はそのまま残ります。</p>
+            <div class="settings-field-list" id="settings-field-list"></div>
+            <div class="settings-empty" id="settings-empty" hidden>項目がありません。「項目を追加」から作成できます。</div>
+          </section>
+
+          <aside class="panel backup-panel">
+            <p class="section-kicker">DATA & PRIVACY</p>
+            <h2>データのバックアップ</h2>
+            <p>日記と項目設定をJSONファイルとして保存できます。別の端末へ移すときや、ブラウザのデータを消す前にご利用ください。</p>
+            <button class="button button-outline button-full" id="export-data" type="button">↓ バックアップを書き出す</button>
+            <label class="button button-quiet button-full import-label" for="import-file">↑ バックアップを読み込む</label>
+            <input class="sr-only" id="import-file" type="file" accept=".json,application/json">
+            <p class="backup-warning">読み込みを行うと、現在のデータはバックアップ内のデータに置き換わります。</p>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer"><span>余白 <span aria-hidden="true">·</span> MY PRIVATE JOURNAL</span><span>自分のための、小さな記録。</span></footer>
+  </div>
+
+  <dialog class="field-dialog" id="field-dialog" aria-labelledby="field-dialog-title">
+    <form id="field-form" method="dialog">
+      <div class="dialog-heading"><p class="section-kicker">CUSTOM FIELD</p><button class="icon-button" type="button" id="close-field-dialog" aria-label="閉じる">×</button></div>
+      <h2 id="field-dialog-title">項目を追加</h2>
+      <label class="form-label" for="field-name">項目の名前</label>
+      <input class="form-input" id="field-name" name="field-name" type="text" maxlength="30" placeholder="例：今日の発見" required>
+      <p class="form-help">30文字以内で入力してください。</p>
+      <div class="dialog-actions"><button class="button button-quiet" type="button" id="cancel-field-dialog">キャンセル</button><button class="button button-primary" id="submit-field" type="submit">保存する</button></div>
+    </form>
+  </dialog>
+
+  <dialog class="confirm-dialog" id="confirm-dialog" aria-labelledby="confirm-title">
+    <form method="dialog">
+      <h2 id="confirm-title">確認</h2>
+      <p id="confirm-message">この操作を実行しますか？</p>
+      <div class="dialog-actions"><button class="button button-quiet" value="cancel">キャンセル</button><button class="button button-danger" id="confirm-accept" value="confirm">削除する</button></div>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
