@@ -30,8 +30,11 @@ const BADGE_DEFS = [
   { id: 'week-streak', title: '週のリズム', condition: '連続2週間 日記を書いた', kind: 'streak', unit: 'week', threshold: 2 },
   { id: 'month-total', title: 'マイペースの達人', condition: '累計3か月 日記を書いた', kind: 'total', unit: 'month', threshold: 3 },
   { id: 'month-streak', title: '習慣の芽', condition: '連続2か月 日記を書いた', kind: 'streak', unit: 'month', threshold: 2 },
-  { id: 'year-total', title: '一年の記録', condition: '累計1年間 日記を書いた', kind: 'total', unit: 'year', threshold: 1 },
-  { id: 'year-streak', title: '季節をこえて', condition: '連続2年間 日記を書いた', kind: 'streak', unit: 'year', threshold: 2 }
+  { id: 'year-total', title: '一年の記録', condition: '累計365日 日記を書いた', kind: 'total', unit: 'day', threshold: 365 },
+  { id: 'year-streak', title: '季節をこえて', condition: '連続2年間 日記を書いた', kind: 'streak', unit: 'year', threshold: 2 },
+  { id: 'perfect-mood', title: 'ごきげん満点', condition: '気分が最高の5の日記を書いた', kind: 'perfect', fieldId: 'core-mood' },
+  { id: 'perfect-health', title: 'からだ晴れやか', condition: '体調が最高の5の日記を書いた', kind: 'perfect', fieldId: 'core-health' },
+  { id: 'perfect-fulfillment', title: '充実の一日', condition: '充実度が最高の5の日記を書いた', kind: 'perfect', fieldId: 'core-fulfillment' }
 ];
 
 const $ = (selector, root = document) => root.querySelector(selector);
@@ -548,6 +551,13 @@ function firstEntryDateForKey(key, unit, uniqueDates) {
 }
 function badgeUnlockDate(def, uniqueDates) {
   if (!uniqueDates.length) return null;
+  if (def.kind === 'perfect') {
+    const qualifying = state.entries
+      .filter(entry => Number(entry.values?.[def.fieldId]?.value) === 5)
+      .map(entry => entry.date)
+      .sort();
+    return qualifying[0] || null;
+  }
   if (def.kind === 'total') {
     const keys = [...new Set(uniqueDates.map(date => def.unit === 'day' ? date : def.unit === 'week' ? startOfWeek(date) : def.unit === 'month' ? monthKey(date) : yearKey(date)))];
     return keys.length >= def.threshold ? firstEntryDateForKey(keys[def.threshold - 1], def.unit, uniqueDates) : null;
