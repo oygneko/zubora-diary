@@ -3,9 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#fbfcfb">
-  <meta name="description" content="書きたい項目だけを選んで、毎日の記録を残すシンプルな日記アプリ。">
+  <meta name="theme-color" content="#f6f2e9">
+  <meta name="description" content="気分や体調をスライダーで記録。書きたいときに、書ける分だけ。ずぼら日記。">
   <title>ずぼら日記</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <script src="app.js" defer></script>
 </head>
@@ -13,158 +16,90 @@
   <div class="app-shell">
     <header class="topbar">
       <a class="brand" href="#write" aria-label="ずぼら日記 ホーム">
-        <span class="brand-mark" aria-hidden="true">ず</span>
-        <span class="brand-copy"><strong>ずぼら日記</strong><small>MY PRIVATE JOURNAL</small></span>
+        <img class="brand-medal" src="medal.png" alt="">
+        <span class="brand-copy"><strong>ずぼら日記</strong><small>ゆるく、気ままに。</small></span>
       </a>
       <nav class="main-nav" aria-label="メインメニュー">
-        <button class="nav-button is-active" type="button" data-view="write" aria-current="page">日記を書く</button>
-        <button class="nav-button" type="button" data-view="archive">日記一覧</button>
-        <button class="nav-button" type="button" data-view="settings">項目設定</button>
+        <button class="nav-button is-active" type="button" data-view="write"><span aria-hidden="true">⌂</span> ホーム</button>
+        <button class="nav-button" type="button" data-view="analytics"><span aria-hidden="true">▥</span> ふりかえり</button>
+        <button class="nav-button" type="button" data-view="badges"><span aria-hidden="true">✧</span> バッジ</button>
+        <button class="nav-button" type="button" data-view="settings"><span aria-hidden="true">⚙</span> 設定</button>
       </nav>
       <div class="topbar-note"><span class="status-dot"></span> この端末に保存</div>
     </header>
 
-    <main>
+    <main class="main-content">
       <section class="view is-visible" id="view-write" aria-labelledby="write-heading">
-        <div class="page-heading">
-          <p class="eyebrow">A SPACE FOR YOUR DAYS</p>
-          <h1 id="write-heading">今日を、好きな分だけ。</h1>
-          <p class="page-intro">書きたいことだけ選んで、あなたのペースで残しましょう。</p>
+        <div class="page-heading compact-heading">
+          <p class="eyebrow">YOUR EASY DAILY LOG</p>
+          <h1 id="write-heading">今日のことを、少しだけ。</h1>
+          <p class="page-intro">全部書かなくて大丈夫。スライダーを動かすだけでも、立派な記録です。</p>
         </div>
-
-        <div class="write-layout">
+        <div class="home-grid">
           <section class="panel compose-panel" aria-label="日記の入力">
             <div class="panel-header">
-              <div>
-                <p class="section-kicker">NEW JOURNAL</p>
-                <h2 id="editor-heading">今日の記録</h2>
-              </div>
-              <label class="date-control" for="entry-date">
-                <span>日付</span>
-                <input id="entry-date" type="date">
-              </label>
+              <div><p class="section-kicker">TODAY'S LOG</p><h2 id="editor-heading">今日の記録</h2></div>
+              <label class="date-control" for="entry-date"><span>日付</span><input id="entry-date" type="date"></label>
             </div>
-
             <div class="field-picker-block">
-              <div class="subheading-row">
-                <div>
-                  <h3>書く項目を選ぶ</h3>
-                  <p>選んだ項目だけ、下に入力欄が表示されます。</p>
-                </div>
-                <button class="text-button" id="clear-selection" type="button">選択をクリア</button>
-              </div>
+              <div class="subheading-row"><div><h3>記録する項目</h3><p>使わない項目はチェックを外せます。</p></div><button class="text-button" id="restore-default-selection" type="button">基本項目を選ぶ</button></div>
               <div class="field-picker" id="field-picker" aria-live="polite"></div>
             </div>
-
             <div class="editor-divider"></div>
-            <div class="subheading-row editor-label-row">
-              <div>
-                <h3>記録する</h3>
-                <p id="editor-hint">項目を選ぶと入力欄がここに表示されます。</p>
-              </div>
-              <span class="selected-count" id="selected-count">0 項目</span>
-            </div>
+            <div class="subheading-row editor-label-row"><div><h3>入力する</h3><p id="editor-hint">スライダーは初期値3。動かさなくても保存できます。</p></div><span class="selected-count" id="selected-count">4 項目</span></div>
             <div class="editor-fields" id="editor-fields"></div>
-
             <div class="compose-footer">
-              <p class="save-message" id="save-message" role="status" aria-live="polite">日記はこのブラウザ内に保存されます。</p>
-              <div class="footer-actions">
-                <button class="button button-quiet" id="reset-editor" type="button">入力をリセット</button>
-                <button class="button button-primary" id="save-entry" type="button" disabled>日記を保存する <span aria-hidden="true">→</span></button>
-              </div>
+              <p class="save-message" id="save-message" role="status" aria-live="polite">記録はこのブラウザ内に保存されます。</p>
+              <div class="footer-actions"><button class="button button-quiet" id="reset-editor" type="button">入力をリセット</button><button class="button button-primary" id="save-entry" type="button">記録を保存する <span aria-hidden="true">→</span></button></div>
             </div>
           </section>
-
           <aside class="side-column">
-            <section class="quote-card">
-              <span class="quote-mark" aria-hidden="true">“</span>
-              <p>毎日きちんと書かなくてもいい。残したい日だけ、残したいことを。</p>
-              <span class="quote-caption">YOUR DAYS, YOUR WAY</span>
-            </section>
-            <section class="panel mini-stats">
-              <p class="section-kicker">YOUR JOURNAL</p>
-              <div class="stat-line"><span>これまでの日記</span><strong id="total-entry-count">0</strong></div>
-              <div class="stat-line"><span>登録している項目</span><strong id="total-field-count">0</strong></div>
-              <button class="inline-link" type="button" data-go-view="archive">過去の日記を見る <span aria-hidden="true">→</span></button>
-            </section>
-            <p class="privacy-note"><span aria-hidden="true">▱</span> 日記の内容はこのブラウザに保存され、GitHubには送信されません。ブラウザのデータ削除や端末変更に備えて、定期的にバックアップしてください。</p>
+            <section class="soft-note"><span class="note-sparkle" aria-hidden="true">✦</span><p>毎日じゃなくていい。<br>思い出した日に、ひとつだけ。</p><small>YOUR PACE IS JUST RIGHT</small></section>
+            <section class="panel mini-stats"><p class="section-kicker">YOUR LITTLE LOG</p><div class="stat-line"><span>記録した日</span><strong id="total-entry-days">0<span>日</span></strong></div><div class="stat-line"><span>これまでの記録</span><strong id="total-entry-count">0<span>件</span></strong></div><button class="inline-link" type="button" data-go-view="analytics">ふりかえりを見る <span aria-hidden="true">→</span></button></section>
+            <section class="panel recent-panel"><div class="panel-title-row"><div><p class="section-kicker">RECENT NOTES</p><h2>最近の記録</h2></div><button class="text-button" data-go-view="archive" type="button">一覧へ</button></div><div id="recent-entry-list" class="recent-entry-list"></div><p id="recent-empty" class="muted-empty">まだ記録はありません。</p></section>
+            <p class="privacy-note">🔒 記録はこのブラウザ内に保存されます。端末変更やデータ削除に備えて、設定からバックアップをお取りください。</p>
           </aside>
         </div>
       </section>
 
-      <section class="view" id="view-archive" aria-labelledby="archive-heading" hidden>
-        <div class="page-heading archive-heading">
-          <p class="eyebrow">YOUR JOURNAL ARCHIVE</p>
-          <h1 id="archive-heading">これまでの日記</h1>
-          <p class="page-intro">書いた日の記録を、いつでも読み返せます。</p>
-        </div>
-        <section class="panel archive-panel">
-          <div class="archive-toolbar">
-            <div class="archive-count"><strong id="archive-count">0</strong><span> entries</span></div>
-            <label class="search-box"><span class="sr-only">日記を検索</span><span aria-hidden="true">⌕</span><input id="archive-search" type="search" placeholder="日付や内容で検索"></label>
-          </div>
-          <div class="entry-list" id="entry-list"></div>
-          <div class="empty-state" id="archive-empty" hidden>
-            <span class="empty-icon" aria-hidden="true">日</span>
-            <h2>まだ日記がありません</h2>
-            <p>最初の記録を、好きな項目から始めてみましょう。</p>
-            <button class="button button-primary" type="button" data-go-view="write">日記を書く <span aria-hidden="true">→</span></button>
+      <section class="view" id="view-analytics" aria-labelledby="analytics-heading" hidden>
+        <div class="page-heading"><p class="eyebrow">SLOW DOWN & LOOK BACK</p><h1 id="analytics-heading">ゆるやかに、ふりかえる。</h1><p class="page-intro">記録できた日の積み重ねを、やさしく見える形に。</p></div>
+        <section class="panel analytics-panel">
+          <div class="panel-title-row analytics-title-row"><div><p class="section-kicker">YOUR CONDITION</p><h2>スライダーの平均</h2></div><div class="period-switch" role="group" aria-label="平均期間"><button type="button" data-period="week" class="is-active">週間</button><button type="button" data-period="month">月間</button><button type="button" data-period="year">年間</button></div></div>
+          <div class="average-grid" id="average-grid"></div>
+          <div class="chart-heading"><div><p class="section-kicker">TRENDS</p><h2>数値のうつりかわり</h2></div><span class="chart-caption">直近30日・1〜5段階</span></div>
+          <div class="chart-wrap" id="trend-chart" role="img" aria-label="スライダー項目の数値推移グラフ"></div>
+          <div class="heatmap-section">
+            <div class="panel-title-row heatmap-title-row"><div><p class="section-kicker">MONTHLY COLOR MAP</p><h2>月間カラーマップ</h2></div><div class="heatmap-controls"><label class="sr-only" for="heat-field-select">カラーマップに使う項目</label><select id="heat-field-select"></select><div class="month-switch"><button id="heat-prev" type="button" aria-label="前の月">‹</button><strong id="heat-title"></strong><button id="heat-next" type="button" aria-label="次の月">›</button></div></div></div>
+            <div class="heat-legend"><span><i class="heat-dot level-1"></i>1</span><span><i class="heat-dot level-2"></i>2</span><span><i class="heat-dot level-3"></i>3</span><span><i class="heat-dot level-4"></i>4</span><span><i class="heat-dot level-5"></i>5</span><small>記録した日の平均値</small></div>
+            <div class="heatmap" id="heat-map"></div>
           </div>
         </section>
       </section>
 
-      <section class="view" id="view-settings" aria-labelledby="settings-heading" hidden>
-        <div class="page-heading">
-          <p class="eyebrow">MAKE IT YOURS</p>
-          <h1 id="settings-heading">日記の項目を整える</h1>
-          <p class="page-intro">書くときに選べる項目を、自分に合わせてカスタマイズできます。</p>
-        </div>
-        <div class="settings-layout">
-          <section class="panel settings-panel">
-            <div class="panel-header settings-header">
-              <div><p class="section-kicker">MY FIELDS</p><h2>登録済みの項目</h2></div>
-              <button class="button button-primary" id="add-field" type="button"><span aria-hidden="true">＋</span> 項目を追加</button>
-            </div>
-            <p class="settings-description">項目を削除しても、過去の日記に書いた内容はそのまま残ります。</p>
-            <div class="settings-field-list" id="settings-field-list"></div>
-            <div class="settings-empty" id="settings-empty" hidden>項目がありません。「項目を追加」から作成できます。</div>
-          </section>
+      <section class="view" id="view-badges" aria-labelledby="badges-heading" hidden>
+        <div class="page-heading"><p class="eyebrow">A LITTLE CHEER FOR YOU</p><h1 id="badges-heading">ゆるログバッジ</h1><p class="page-intro">続けた日も、お休みした日も。自分のペースの記録を集めましょう。</p></div>
+        <section class="panel badges-panel"><div class="panel-title-row"><div><p class="section-kicker">YOUR COLLECTION</p><h2>バッジコレクション</h2></div><div class="badge-count" id="badge-count">0 / 8 獲得</div></div><div class="badge-list" id="badge-list"></div><p class="badge-footnote">記録が条件に届くと、バッジがそっと色づきます。毎日続ける必要はありません。</p></section>
+      </section>
 
-          <aside class="panel backup-panel">
-            <p class="section-kicker">DATA & PRIVACY</p>
-            <h2>データのバックアップ</h2>
-            <p>日記と項目設定をJSONファイルとして保存できます。別の端末へ移すときや、ブラウザのデータを消す前にご利用ください。</p>
-            <button class="button button-outline button-full" id="export-data" type="button">↓ バックアップを書き出す</button>
-            <label class="button button-quiet button-full import-label" for="import-file">↑ バックアップを読み込む</label>
-            <input class="sr-only" id="import-file" type="file" accept=".json,application/json">
-            <p class="backup-warning">読み込みを行うと、現在のデータはバックアップ内のデータに置き換わります。</p>
-          </aside>
+      <section class="view" id="view-settings" aria-labelledby="settings-heading" hidden>
+        <div class="page-heading"><p class="eyebrow">MAKE IT YOURS</p><h1 id="settings-heading">自分好みに整える。</h1><p class="page-intro">記録する項目や、データの保存方法を設定できます。</p></div>
+        <div class="settings-layout">
+          <section class="panel settings-panel"><div class="panel-title-row settings-header"><div><p class="section-kicker">MY FIELDS</p><h2>記録する項目</h2></div><button class="button button-primary" id="add-field" type="button">＋ 項目を追加</button></div><p class="settings-description">最初からある4つの項目は削除できません。追加した項目はいつでも編集・削除できます。</p><div class="settings-field-list" id="settings-field-list"></div><div class="settings-empty" id="settings-empty" hidden>項目がありません。</div></section>
+          <aside class="panel backup-panel"><p class="section-kicker">DATA & PRIVACY</p><h2>バックアップ</h2><p>日記と項目設定をJSONファイルに保存できます。大切な記録を守るため、ときどき書き出してください。</p><button class="button button-outline button-full" id="export-data" type="button">↓ バックアップを書き出す</button><label class="button button-quiet button-full import-label" for="import-file">↑ バックアップを読み込む</label><input class="sr-only" id="import-file" type="file" accept=".json,application/json"><p class="backup-warning">読み込みを行うと、現在の記録はバックアップの内容に置き換わります。</p></aside>
         </div>
       </section>
-    </main>
 
-    <footer class="site-footer"><span>余白 <span aria-hidden="true">·</span> MY PRIVATE JOURNAL</span><span>自分のための、小さな記録。</span></footer>
+      <section class="view" id="view-archive" aria-labelledby="archive-heading" hidden>
+        <div class="page-heading"><p class="eyebrow">YOUR SAVED DAYS</p><h1 id="archive-heading">記録の一覧</h1><p class="page-intro">これまでに書いたことを読み返せます。</p></div>
+        <section class="panel archive-panel"><div class="archive-toolbar"><div class="archive-count"><strong id="archive-count">0</strong><span> 件の記録</span></div><label class="search-box"><span class="sr-only">記録を検索</span><span aria-hidden="true">⌕</span><input id="archive-search" type="search" placeholder="日付や内容で検索"></label></div><div class="entry-list" id="entry-list"></div><div class="empty-state" id="archive-empty" hidden><span class="empty-icon">☁</span><h2>まだ記録がありません</h2><p>最初の記録は、スライダーをひとつ動かすだけでも大丈夫。</p><button class="button button-primary" data-go-view="write" type="button">ホームへ戻る</button></div></section>
+      </section>
+    </main>
+    <footer class="site-footer"><span>ずぼら日記 <span aria-hidden="true">·</span> YOUR EASY DAILY LOG</span><span>自分のペースで、ゆるく。</span></footer>
   </div>
 
-  <dialog class="field-dialog" id="field-dialog" aria-labelledby="field-dialog-title">
-    <form id="field-form" method="dialog">
-      <div class="dialog-heading"><p class="section-kicker">CUSTOM FIELD</p><button class="icon-button" type="button" id="close-field-dialog" aria-label="閉じる">×</button></div>
-      <h2 id="field-dialog-title">項目を追加</h2>
-      <label class="form-label" for="field-name">項目の名前</label>
-      <input class="form-input" id="field-name" name="field-name" type="text" maxlength="30" placeholder="例：今日の発見" required>
-      <p class="form-help">30文字以内で入力してください。</p>
-      <div class="dialog-actions"><button class="button button-quiet" type="button" id="cancel-field-dialog">キャンセル</button><button class="button button-primary" id="submit-field" type="submit">保存する</button></div>
-    </form>
-  </dialog>
-
-  <dialog class="confirm-dialog" id="confirm-dialog" aria-labelledby="confirm-title">
-    <form method="dialog">
-      <h2 id="confirm-title">確認</h2>
-      <p id="confirm-message">この操作を実行しますか？</p>
-      <div class="dialog-actions"><button class="button button-quiet" value="cancel">キャンセル</button><button class="button button-danger" id="confirm-accept" value="confirm">削除する</button></div>
-    </form>
-  </dialog>
-
+  <dialog class="field-dialog" id="field-dialog" aria-labelledby="field-dialog-title"><form id="field-form"><div class="dialog-heading"><p class="section-kicker">CUSTOM FIELD</p><button class="icon-button" type="button" id="close-field-dialog" aria-label="閉じる">×</button></div><h2 id="field-dialog-title">項目を追加</h2><label class="form-label" for="field-name">項目の名前</label><input class="form-input" id="field-name" name="field-name" type="text" maxlength="30" placeholder="例：睡眠の満足度" required><label class="form-label" for="field-type">項目のタイプ</label><select class="form-input" id="field-type"><option value="slider">スライダー型（1〜5）</option><option value="text">文章記述型</option></select><div id="color-picker-block"><span class="form-label">グラフ線の色</span><div class="color-preset-grid" id="color-preset-grid"></div></div><p class="form-help">名前とタイプを決めるだけで追加できます。スライダー型の場合は線の色も選んでください。</p><div class="dialog-actions"><button class="button button-quiet" type="button" id="cancel-field-dialog">キャンセル</button><button class="button button-primary" type="submit">保存する</button></div></form></dialog>
+  <dialog class="confirm-dialog" id="confirm-dialog" aria-labelledby="confirm-title"><form method="dialog"><h2 id="confirm-title">確認</h2><p id="confirm-message">この操作を実行しますか？</p><div class="dialog-actions"><button class="button button-quiet" value="cancel">キャンセル</button><button class="button button-danger" id="confirm-accept" value="confirm">削除する</button></div></form></dialog>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 </body>
 </html>
