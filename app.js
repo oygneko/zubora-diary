@@ -22,7 +22,19 @@ const GRAPH_COLORS = [
   { key: 'brown', name: '茶色', hex: '#ae8974' },
   { key: 'black', name: '黒色', hex: '#6d6864' }
 ];
-const HEAT_COLORS = { 1: '#91add2', 2: '#99c9cb', 3: '#a4c7a0', 4: '#e4cb86', 5: '#dfa5b1' };
+const HEAT_COLORS = { 1: '#9bb5d2', 2: '#a3c9ca', 3: '#abc7a4', 4: '#e3cf91', 5: '#dfacb8' };
+const NOTE_PROMPTS = [
+  '今日、ちょっと嬉しかったことは？',
+  '今日いちばん印象に残ったことは？',
+  '最近気になっていることは？',
+  '今日の自分にひとこと言うなら？',
+  '思わず笑ったことはあった？',
+  '今日、頑張ったと思えることは？',
+  '明日の自分に伝えておきたいことは？',
+  '今の気分を天気にたとえると？',
+  '今日食べておいしかったものは？',
+  '何もなかった日なら、何もなかったと書いてみよう。'
+];
 const BADGE_DEFS = [
   { id: 'day-total', title: 'はじめの一歩', condition: '累計1日 日記を書いた', kind: 'total', unit: 'day', threshold: 1 },
   { id: 'day-streak', title: '三日坊主じゃないかも', condition: '連続3日 日記を書いた', kind: 'streak', unit: 'day', threshold: 3 },
@@ -30,11 +42,8 @@ const BADGE_DEFS = [
   { id: 'week-streak', title: '週のリズム', condition: '連続2週間 日記を書いた', kind: 'streak', unit: 'week', threshold: 2 },
   { id: 'month-total', title: 'マイペースの達人', condition: '累計3か月 日記を書いた', kind: 'total', unit: 'month', threshold: 3 },
   { id: 'month-streak', title: '習慣の芽', condition: '連続2か月 日記を書いた', kind: 'streak', unit: 'month', threshold: 2 },
-  { id: 'year-total', title: '一年の記録', condition: '累計365日 日記を書いた', kind: 'total', unit: 'day', threshold: 365 },
-  { id: 'year-streak', title: '季節をこえて', condition: '連続2年間 日記を書いた', kind: 'streak', unit: 'year', threshold: 2 },
-  { id: 'perfect-mood', title: 'ごきげん満点', condition: '気分が最高の5の日記を書いた', kind: 'perfect', fieldId: 'core-mood' },
-  { id: 'perfect-health', title: 'からだ晴れやか', condition: '体調が最高の5の日記を書いた', kind: 'perfect', fieldId: 'core-health' },
-  { id: 'perfect-fulfillment', title: '充実の一日', condition: '充実度が最高の5の日記を書いた', kind: 'perfect', fieldId: 'core-fulfillment' }
+  { id: 'year-total', title: '一年の記録', condition: '累計1年間 日記を書いた', kind: 'total', unit: 'year', threshold: 1 },
+  { id: 'year-streak', title: '季節をこえて', condition: '連続2年間 日記を書いた', kind: 'streak', unit: 'year', threshold: 2 }
 ];
 
 const $ = (selector, root = document) => root.querySelector(selector);
@@ -245,16 +254,16 @@ function renderEditorFields() {
       const output = document.createElement('output'); output.className = 'editor-value'; output.textContent = `${value} / 5`;
       header.append(output);
       const row = document.createElement('div'); row.className = 'slider-row';
-      const range = document.createElement('input'); range.type = 'range'; range.min = '1'; range.max = '5'; range.step = '1'; range.value = String(value); range.style.setProperty('--range-color', getColor(field.color)); range.setAttribute('aria-label', `${field.name} 1から5`);
+      const range = document.createElement('input'); range.type = 'range'; range.min = '1'; range.max = '5'; range.step = '0.01'; range.value = String(value); range.style.setProperty('--range-color', getColor(field.color)); range.setAttribute('aria-label', `${field.name} 1から5`);
       updateRangeFill(range);
       range.addEventListener('input', () => {
-        draftValues[field.id] = Number(range.value); output.textContent = `${range.value} / 5`; updateRangeFill(range);
+        draftValues[field.id] = clampScore(range.value); output.textContent = `${clampScore(range.value)} / 5`; updateRangeFill(range);
       });
       row.append(range);
       const ends = document.createElement('div'); ends.className = 'slider-scale'; ends.innerHTML = '<span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>';
       card.append(header, row, ends);
     } else {
-      const textarea = document.createElement('textarea'); textarea.className = 'editor-textarea'; textarea.rows = 2; textarea.maxLength = 5000; textarea.placeholder = 'ひとことだけでも、空欄のままでも。';
+      const textarea = document.createElement('textarea'); textarea.className = 'editor-textarea'; textarea.rows = 2; textarea.maxLength = 5000; textarea.placeholder = NOTE_PROMPTS[Math.floor(Math.random() * NOTE_PROMPTS.length)];
       textarea.value = String(draftValues[field.id] ?? getCurrentEntry()?.values?.[field.id]?.value ?? '');
       textarea.setAttribute('aria-label', field.name);
       textarea.addEventListener('input', () => { draftValues[field.id] = textarea.value; });
@@ -551,13 +560,6 @@ function firstEntryDateForKey(key, unit, uniqueDates) {
 }
 function badgeUnlockDate(def, uniqueDates) {
   if (!uniqueDates.length) return null;
-  if (def.kind === 'perfect') {
-    const qualifying = state.entries
-      .filter(entry => Number(entry.values?.[def.fieldId]?.value) === 5)
-      .map(entry => entry.date)
-      .sort();
-    return qualifying[0] || null;
-  }
   if (def.kind === 'total') {
     const keys = [...new Set(uniqueDates.map(date => def.unit === 'day' ? date : def.unit === 'week' ? startOfWeek(date) : def.unit === 'month' ? monthKey(date) : yearKey(date)))];
     return keys.length >= def.threshold ? firstEntryDateForKey(keys[def.threshold - 1], def.unit, uniqueDates) : null;
