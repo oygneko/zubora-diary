@@ -263,8 +263,22 @@ function renderEditorFields() {
       const range = document.createElement('input'); range.type = 'range'; range.min = '1'; range.max = '5'; range.step = '0.01'; range.value = String(value); range.style.setProperty('--range-color', getColor(field.color)); range.setAttribute('aria-label', `${field.name} 1から5`);
       updateRangeFill(range);
       range.addEventListener('input', () => {
-        draftValues[field.id] = Number(range.value); output.textContent = `${Math.round(Number(range.value))} / 5`; updateRangeFill(range);
+        // ドラッグ中は滑らかに動かし、表示は最も近い整数に合わせます。
+        output.textContent = `${Math.round(Number(range.value))} / 5`;
+        updateRangeFill(range);
       });
+      const snapToNearestScore = () => {
+        const snapped = Math.max(1, Math.min(5, Math.round(Number(range.value))));
+        range.value = String(snapped);
+        draftValues[field.id] = snapped;
+        output.textContent = `${snapped} / 5`;
+        updateRangeFill(range);
+      };
+      // マウス・タッチで指／ボタンを離した時に1〜5の最寄り値へ吸着。
+      range.addEventListener('pointerup', snapToNearestScore);
+      range.addEventListener('pointercancel', snapToNearestScore);
+      // キーボード操作でも確定時に整数へ揃える。
+      range.addEventListener('change', snapToNearestScore);
       row.append(range);
       const ends = document.createElement('div'); ends.className = 'slider-scale'; ends.innerHTML = '<span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>';
       card.append(header, row, ends);
