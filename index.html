@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f6f2e9">
+  <meta name="theme-color" content="#ffffff">
   <meta name="description" content="気分や体調をスライダーで記録。書きたいときに、書ける分だけ。ずぼら日記。">
   <title>ずぼら日記</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,13 +16,11 @@
   <div class="app-shell">
     <header class="topbar">
       <a class="brand" href="#write" aria-label="ずぼら日記 ホーム">
-        <span class="brand-mark" aria-hidden="true"></span>
         <span class="brand-copy"><strong>ずぼら日記</strong><small>ゆるく、気ままに。</small></span>
       </a>
       <nav class="main-nav" aria-label="メインメニュー">
         <button class="nav-button is-active" type="button" data-view="write"><span aria-hidden="true">⌂</span> ホーム</button>
         <button class="nav-button" type="button" data-view="analytics"><span aria-hidden="true">▥</span> ふりかえり</button>
-        <button class="nav-button" type="button" data-view="badges"><span aria-hidden="true">✧</span> バッジ</button>
         <button class="nav-button" type="button" data-view="settings"><span aria-hidden="true">⚙</span> 設定</button>
       </nav>
       <div class="topbar-note"><span class="status-dot"></span> この端末に保存</div>
@@ -55,7 +53,7 @@
           </section>
           <aside class="side-column">
             <section class="soft-note"><span class="note-sparkle" aria-hidden="true">✦</span><p>毎日じゃなくていい。<br>思い出した日に、ひとつだけ。</p><small>YOUR PACE IS JUST RIGHT</small></section>
-            <section class="panel mini-stats"><p class="section-kicker">YOUR LITTLE LOG</p><div class="stat-line"><span>記録した日</span><strong id="total-entry-days">0<span>日</span></strong></div><div class="stat-line"><span>これまでの記録</span><strong id="total-entry-count">0<span>件</span></strong></div><button class="inline-link" type="button" data-go-view="analytics">ふりかえりを見る <span aria-hidden="true">→</span></button></section>
+            <section class="panel mini-stats"><p class="section-kicker">YOUR LITTLE LOG</p><div class="stat-line"><span>連続で記録した最長日数</span><strong id="longest-entry-streak">0<span>日</span></strong></div><div class="stat-line"><span>記録した日</span><strong id="total-entry-days">0<span>日</span></strong></div><div class="stat-line"><span>これまでの記録</span><strong id="total-entry-count">0<span>件</span></strong></div><button class="inline-link" type="button" data-go-view="analytics">ふりかえりを見る <span aria-hidden="true">→</span></button></section>
             <section class="panel recent-panel"><div class="panel-title-row"><div><p class="section-kicker">RECENT NOTES</p><h2>最近の記録</h2></div><button class="text-button" data-go-view="archive" type="button">一覧へ</button></div><div id="recent-entry-list" class="recent-entry-list"></div><p id="recent-empty" class="muted-empty">まだ記録はありません。</p></section>
             <p class="privacy-note">🔒 記録はこのブラウザ内に保存されます。端末変更やデータ削除に備えて、設定からバックアップをお取りください。</p>
           </aside>
@@ -77,10 +75,6 @@
         </section>
       </section>
 
-      <section class="view" id="view-badges" aria-labelledby="badges-heading" hidden>
-        <div class="page-heading"><p class="eyebrow">A LITTLE CHEER FOR YOU</p><h1 id="badges-heading">ゆるログバッジ</h1><p class="page-intro">続けた日も、お休みした日も。自分のペースの記録を集めましょう。</p></div>
-        <section class="panel badges-panel"><div class="panel-title-row"><div><p class="section-kicker">YOUR COLLECTION</p><h2>バッジコレクション</h2></div><div class="badge-count" id="badge-count">0 / 8 獲得</div></div><div class="badge-list" id="badge-list"></div><p class="badge-footnote">記録が条件に届くと、バッジがそっと色づきます。毎日続ける必要はありません。</p></section>
-      </section>
 
       <section class="view" id="view-settings" aria-labelledby="settings-heading" hidden>
         <div class="page-heading"><p class="eyebrow">MAKE IT YOURS</p><h1 id="settings-heading">自分好みに整える。</h1><p class="page-intro">記録する項目や、データの保存方法を設定できます。</p></div>

@@ -22,29 +22,21 @@ const GRAPH_COLORS = [
   { key: 'brown', name: '茶色', hex: '#ae8974' },
   { key: 'black', name: '黒色', hex: '#6d6864' }
 ];
-const HEAT_COLORS = { 1: '#9bb5d2', 2: '#a3c9ca', 3: '#abc7a4', 4: '#e3cf91', 5: '#dfacb8' };
+const HEAT_COLORS = { 1: '#91add2', 2: '#99c9cb', 3: '#a4c7a0', 4: '#e4cb86', 5: '#dfa5b1' };
+
 const NOTE_PROMPTS = [
-  '今日、ちょっと嬉しかったことは？',
-  '今日いちばん印象に残ったことは？',
+  '今日、少しうれしかったことは？',
   '最近気になっていることは？',
-  '今日の自分にひとこと言うなら？',
-  '思わず笑ったことはあった？',
-  '今日、頑張ったと思えることは？',
-  '明日の自分に伝えておきたいことは？',
-  '今の気分を天気にたとえると？',
   '今日食べておいしかったものは？',
-  '何もなかった日なら、何もなかったと書いてみよう。'
+  '誰かとの会話で印象に残ったことは？',
+  '今日の自分をひとことで表すなら？',
+  '明日の自分にひとこと伝えるなら？',
+  '最近、時間を忘れて楽しんだことは？',
+  '今日見つけた小さな発見は？'
 ];
-const BADGE_DEFS = [
-  { id: 'day-total', title: 'はじめの一歩', condition: '累計1日 日記を書いた', kind: 'total', unit: 'day', threshold: 1 },
-  { id: 'day-streak', title: '三日坊主じゃないかも', condition: '連続3日 日記を書いた', kind: 'streak', unit: 'day', threshold: 3 },
-  { id: 'week-total', title: '週末の記録係', condition: '累計4週間 日記を書いた', kind: 'total', unit: 'week', threshold: 4 },
-  { id: 'week-streak', title: '週のリズム', condition: '連続2週間 日記を書いた', kind: 'streak', unit: 'week', threshold: 2 },
-  { id: 'month-total', title: 'マイペースの達人', condition: '累計3か月 日記を書いた', kind: 'total', unit: 'month', threshold: 3 },
-  { id: 'month-streak', title: '習慣の芽', condition: '連続2か月 日記を書いた', kind: 'streak', unit: 'month', threshold: 2 },
-  { id: 'year-total', title: '一年の記録', condition: '累計1年間 日記を書いた', kind: 'total', unit: 'year', threshold: 1 },
-  { id: 'year-streak', title: '季節をこえて', condition: '連続2年間 日記を書いた', kind: 'streak', unit: 'year', threshold: 2 }
-];
+function getRandomNotePrompt() {
+  return NOTE_PROMPTS[Math.floor(Math.random() * NOTE_PROMPTS.length)];
+}
 
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
@@ -157,11 +149,26 @@ function showToast(message) {
 function sortedEntries() { return [...state.entries].sort((a, b) => b.date.localeCompare(a.date) || b.updatedAt.localeCompare(a.updatedAt)); }
 function sortedDates() { return [...new Set(state.entries.map(entry => entry.date))].sort(); }
 function updateMiniStats() {
-  $('#total-entry-days').innerHTML = `${new Set(state.entries.map(entry => entry.date)).size}<span>日</span>`;
+  const dates = sortedDates();
+  $('#total-entry-days').innerHTML = `${dates.length}<span>日</span>`;
+  $('#longest-entry-streak').innerHTML = `${getLongestStreak(dates)}<span>日</span>`;
   $('#total-entry-count').innerHTML = `${state.entries.length}<span>件</span>`;
 }
+function getLongestStreak(dates) {
+  if (!dates.length) return 0;
+  let longest = 1;
+  let current = 1;
+  for (let i = 1; i < dates.length; i++) {
+    const previous = parseLocalDate(dates[i - 1]);
+    const next = parseLocalDate(dates[i]);
+    const dayGap = Math.round((next - previous) / 86400000);
+    current = dayGap === 1 ? current + 1 : 1;
+    if (current > longest) longest = current;
+  }
+  return longest;
+}
 function navigate(viewName) {
-  const views = ['write', 'analytics', 'badges', 'settings', 'archive'];
+  const views = ['write', 'analytics', 'settings', 'archive'];
   if (!views.includes(viewName)) return;
   $$('.view').forEach(view => {
     const active = view.id === `view-${viewName}`;
@@ -174,7 +181,6 @@ function navigate(viewName) {
     if (active) button.setAttribute('aria-current', 'page'); else button.removeAttribute('aria-current');
   });
   if (viewName === 'analytics') renderAnalytics();
-  if (viewName === 'badges') renderBadges();
   if (viewName === 'settings') renderSettings();
   if (viewName === 'archive') renderArchive();
   if (viewName === 'write') renderRecentEntries();
@@ -257,13 +263,13 @@ function renderEditorFields() {
       const range = document.createElement('input'); range.type = 'range'; range.min = '1'; range.max = '5'; range.step = '0.01'; range.value = String(value); range.style.setProperty('--range-color', getColor(field.color)); range.setAttribute('aria-label', `${field.name} 1から5`);
       updateRangeFill(range);
       range.addEventListener('input', () => {
-        draftValues[field.id] = clampScore(range.value); output.textContent = `${clampScore(range.value)} / 5`; updateRangeFill(range);
+        draftValues[field.id] = Number(range.value); output.textContent = `${Math.round(Number(range.value))} / 5`; updateRangeFill(range);
       });
       row.append(range);
       const ends = document.createElement('div'); ends.className = 'slider-scale'; ends.innerHTML = '<span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>';
       card.append(header, row, ends);
     } else {
-      const textarea = document.createElement('textarea'); textarea.className = 'editor-textarea'; textarea.rows = 2; textarea.maxLength = 5000; textarea.placeholder = NOTE_PROMPTS[Math.floor(Math.random() * NOTE_PROMPTS.length)];
+      const textarea = document.createElement('textarea'); textarea.className = 'editor-textarea'; textarea.rows = 2; textarea.maxLength = 5000; textarea.placeholder = field.id === 'core-note' ? getRandomNotePrompt() : 'ひとことだけでも、空欄のままでも。';
       textarea.value = String(draftValues[field.id] ?? getCurrentEntry()?.values?.[field.id]?.value ?? '');
       textarea.setAttribute('aria-label', field.name);
       textarea.addEventListener('input', () => { draftValues[field.id] = textarea.value; });
@@ -349,7 +355,7 @@ function renderArchive() {
     const actions = document.createElement('div'); actions.className = 'entry-actions';
     const edit = document.createElement('button'); edit.type = 'button'; edit.textContent = '編集'; edit.addEventListener('click', () => editEntry(entry.id));
     const remove = document.createElement('button'); remove.type = 'button'; remove.textContent = '削除'; remove.addEventListener('click', () => askConfirm('この記録を削除しますか？', '削除する', () => {
-      state.entries = state.entries.filter(item => item.id !== entry.id); persistState(); renderArchive(); renderRecentEntries(); renderAnalytics(); renderBadges(); showToast('記録を削除しました。');
+      state.entries = state.entries.filter(item => item.id !== entry.id); persistState(); renderArchive(); renderRecentEntries(); renderAnalytics(); showToast('記録を削除しました。');
     }));
     actions.append(edit, remove); header.append(time, actions); card.append(header);
     const chips = document.createElement('div'); chips.className = 'entry-values';
@@ -543,63 +549,6 @@ function renderHeatMap() {
     button.append(number, stamp); map.append(button);
   }
 }
-function startOfWeek(dateString) {
-  const date = parseLocalDate(dateString); date.setDate(date.getDate() - ((date.getDay() + 6) % 7)); return localDateString(date);
-}
-function monthKey(dateString) { return dateString.slice(0, 7); }
-function yearKey(dateString) { return dateString.slice(0, 4); }
-function keyDiff(a, b, unit) {
-  if (unit === 'day') return Math.round((parseLocalDate(b) - parseLocalDate(a)) / 86400000);
-  if (unit === 'week') return Math.round((parseLocalDate(b) - parseLocalDate(a)) / (86400000 * 7));
-  if (unit === 'month') { const [ay, am] = a.split('-').map(Number); const [by, bm] = b.split('-').map(Number); return (by - ay) * 12 + (bm - am); }
-  return Number(b) - Number(a);
-}
-function firstEntryDateForKey(key, unit, uniqueDates) {
-  if (unit === 'day') return key;
-  return uniqueDates.find(date => (unit === 'week' ? startOfWeek(date) : unit === 'month' ? monthKey(date) : yearKey(date)) === key);
-}
-function badgeUnlockDate(def, uniqueDates) {
-  if (!uniqueDates.length) return null;
-  if (def.kind === 'total') {
-    const keys = [...new Set(uniqueDates.map(date => def.unit === 'day' ? date : def.unit === 'week' ? startOfWeek(date) : def.unit === 'month' ? monthKey(date) : yearKey(date)))];
-    return keys.length >= def.threshold ? firstEntryDateForKey(keys[def.threshold - 1], def.unit, uniqueDates) : null;
-  }
-  if (def.unit === 'day') {
-    for (let i = def.threshold - 1; i < uniqueDates.length; i++) {
-      let consecutive = true;
-      for (let j = i - def.threshold + 1; j < i; j++) if (keyDiff(uniqueDates[j], uniqueDates[j + 1], 'day') !== 1) consecutive = false;
-      if (consecutive) return uniqueDates[i];
-    }
-    return null;
-  }
-  const keys = [...new Set(uniqueDates.map(date => def.unit === 'week' ? startOfWeek(date) : def.unit === 'month' ? monthKey(date) : yearKey(date)))];
-  for (let i = def.threshold - 1; i < keys.length; i++) {
-    let consecutive = true;
-    for (let j = i - def.threshold + 1; j < i; j++) if (keyDiff(keys[j], keys[j + 1], def.unit) !== 1) consecutive = false;
-    if (consecutive) return firstEntryDateForKey(keys[i], def.unit, uniqueDates);
-  }
-  return null;
-}
-function renderBadges() {
-  const list = $('#badge-list'); list.replaceChildren();
-  const dates = sortedDates(); let earned = 0;
-  BADGE_DEFS.forEach(def => {
-    const unlocked = badgeUnlockDate(def, dates);
-    if (unlocked) earned++;
-    const card = document.createElement('article'); card.className = `badge-card${unlocked ? '' : ' is-locked'}`;
-    const medalWrap = document.createElement('div'); medalWrap.className = 'badge-medal-wrap';
-    const medal = document.createElement('img'); medal.className = 'badge-medal'; medal.src = 'medal.png'; medal.alt = unlocked ? '獲得した金色のメダル' : '未獲得のメダル'; medalWrap.append(medal);
-    const copy = document.createElement('div'); copy.className = 'badge-copy';
-    const title = document.createElement('h3'); title.className = 'badge-title'; title.textContent = unlocked ? def.title : '？？？';
-    const condition = document.createElement('p'); condition.className = 'badge-condition'; condition.textContent = unlocked ? def.condition : '？？？';
-    copy.append(title, condition);
-    const date = document.createElement('time'); date.className = 'badge-earned-date';
-    if (unlocked) { date.dateTime = unlocked; date.textContent = `獲得日：${formatDate(unlocked, { year: 'numeric', month: '2-digit', day: '2-digit' })}`; }
-    else date.textContent = '未獲得';
-    card.append(medalWrap, copy, date); list.append(card);
-  });
-  $('#badge-count').textContent = `${earned} / ${BADGE_DEFS.length} 獲得`;
-}
 function exportData() {
   const blob = new Blob([JSON.stringify({ app: 'ずぼら日記', version: DATA_VERSION, exportedAt: new Date().toISOString(), fields: state.fields, entries: state.entries }, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob); const anchor = document.createElement('a');
@@ -614,7 +563,7 @@ async function importData(file) {
     startNewEntry(); renderAll(); showToast('バックアップを読み込みました。');
   } catch (error) { console.error(error); showToast('読み込めませんでした。JSONファイルをご確認ください。'); }
 }
-function renderAll() { updateMiniStats(); renderRecentEntries(); renderSettings(); renderAnalytics(); renderBadges(); renderArchive(); }
+function renderAll() { updateMiniStats(); renderRecentEntries(); renderSettings(); renderAnalytics(); renderArchive(); }
 
 // UI events
 $$('.nav-button').forEach(button => button.addEventListener('click', () => navigate(button.dataset.view)));
@@ -646,7 +595,7 @@ $('#heat-prev').addEventListener('click', () => { const [y, m] = heatMonth.split
 $('#heat-next').addEventListener('click', () => { const [y, m] = heatMonth.split('-').map(Number); heatMonth = localMonthString(new Date(y, m, 1)); renderHeatMap(); });
 window.addEventListener('hashchange', () => {
   const route = location.hash.slice(1);
-  if (['write', 'analytics', 'badges', 'settings', 'archive'].includes(route)) navigate(route);
+  if (['write', 'analytics', 'settings', 'archive'].includes(route)) navigate(route);
 });
 
 // First render. Existing localStorage entries are migrated by normalizeState().
@@ -655,7 +604,6 @@ startNewEntry();
 renderRecentEntries();
 renderSettings();
 renderAnalytics();
-renderBadges();
 renderArchive();
 const initialRoute = location.hash.slice(1);
-if (['write', 'analytics', 'badges', 'settings', 'archive'].includes(initialRoute)) navigate(initialRoute);
+if (['write', 'analytics', 'settings', 'archive'].includes(initialRoute)) navigate(initialRoute);
