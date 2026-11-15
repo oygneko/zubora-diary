@@ -24,19 +24,6 @@ const GRAPH_COLORS = [
 ];
 const HEAT_COLORS = { 1: '#91add2', 2: '#99c9cb', 3: '#a4c7a0', 4: '#e4cb86', 5: '#dfa5b1' };
 
-const NOTE_PROMPTS = [
-  '今日、少しうれしかったことは？',
-  '最近気になっていることは？',
-  '今日食べておいしかったものは？',
-  '誰かとの会話で印象に残ったことは？',
-  '今日の自分をひとことで表すなら？',
-  '明日の自分にひとこと伝えるなら？',
-  '最近、時間を忘れて楽しんだことは？',
-  '今日見つけた小さな発見は？'
-];
-function getRandomNotePrompt() {
-  return NOTE_PROMPTS[Math.floor(Math.random() * NOTE_PROMPTS.length)];
-}
 
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
@@ -283,7 +270,7 @@ function renderEditorFields() {
       const ends = document.createElement('div'); ends.className = 'slider-scale'; ends.innerHTML = '<span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>';
       card.append(header, row, ends);
     } else {
-      const textarea = document.createElement('textarea'); textarea.className = 'editor-textarea'; textarea.rows = 2; textarea.maxLength = 5000; textarea.placeholder = field.id === 'core-note' ? getRandomNotePrompt() : 'ひとことだけでも、空欄のままでも。';
+      const textarea = document.createElement('textarea'); textarea.className = 'editor-textarea'; textarea.rows = 2; textarea.maxLength = 5000; textarea.placeholder = field.id === 'core-note' ? '' : 'ひとことだけでも、空欄のままでも。';
       textarea.value = String(draftValues[field.id] ?? getCurrentEntry()?.values?.[field.id]?.value ?? '');
       textarea.setAttribute('aria-label', field.name);
       textarea.addEventListener('input', () => { draftValues[field.id] = textarea.value; });
