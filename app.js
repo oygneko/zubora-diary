@@ -22,7 +22,6 @@ const GRAPH_COLORS = [
   { key: 'brown', name: '茶色', hex: '#ae8974' },
   { key: 'black', name: '黒色', hex: '#6d6864' }
 ];
-const HEAT_COLORS = { 1: '#91add2', 2: '#99c9cb', 3: '#a4c7a0', 4: '#e4cb86', 5: '#dfa5b1' };
 
 
 const $ = (selector, root = document) => root.querySelector(selector);
@@ -34,7 +33,6 @@ let draftValues = {};
 let editingFieldId = null;
 let selectedColor = null;
 let activePeriod = 'week';
-let heatMonth = localMonthString(new Date());
 let toastTimer = null;
 let confirmAction = null;
 
@@ -155,7 +153,7 @@ function getLongestStreak(dates) {
   return longest;
 }
 function navigate(viewName) {
-  const views = ['write', 'analytics', 'settings', 'archive'];
+  const views = ['write', 'analytics', 'settings'];
   if (!views.includes(viewName)) return;
   $$('.view').forEach(view => {
     const active = view.id === `view-${viewName}`;
@@ -169,7 +167,6 @@ function navigate(viewName) {
   });
   if (viewName === 'analytics') renderAnalytics();
   if (viewName === 'settings') renderSettings();
-  if (viewName === 'archive') renderArchive();
   if (viewName === 'write') renderRecentEntries();
   window.location.hash = viewName;
 }
@@ -459,7 +456,7 @@ function valuesForField(fieldId, entries = state.entries) {
 }
 function average(values) { return values.length ? values.reduce((sum, item) => sum + item.value, 0) / values.length : null; }
 function renderAnalytics() {
-  renderAverageCards(); renderTrendChart(); renderHeatMap();
+  renderAverageCards(); renderTrendChart(); renderArchive();
 }
 function renderAverageCards() {
   const grid = $('#average-grid'); grid.replaceChildren();
@@ -522,34 +519,6 @@ function monthDateRange(monthString) {
   const first = new Date(year, month - 1, 1, 12); const count = new Date(year, month, 0).getDate();
   return { year, month, first, count, offset: (first.getDay() + 6) % 7 };
 }
-function renderHeatMap() {
-  const select = $('#heat-field-select'); const fields = currentSliderFields();
-  const previous = select.value;
-  select.replaceChildren();
-  fields.forEach(field => { const option = document.createElement('option'); option.value = field.id; option.textContent = field.name; select.append(option); });
-  if (fields.some(field => field.id === previous)) select.value = previous;
-  else if (fields.some(field => field.id === 'core-fulfillment')) select.value = 'core-fulfillment';
-  else if (fields[0]) select.value = fields[0].id;
-  $('#heat-title').textContent = `${Number(heatMonth.split('-')[1])}月`;
-  const map = $('#heat-map'); map.replaceChildren();
-  if (!fields.length) { map.innerHTML = '<p class="average-empty">スライダー型の項目を追加すると、月間カラーマップを使えます。</p>'; return; }
-  ['月', '火', '水', '木', '金', '土', '日'].forEach(day => { const head = document.createElement('div'); head.className = 'heatmap-weekday'; head.textContent = day; map.append(head); });
-  const { year, month, count, offset } = monthDateRange(heatMonth); const today = localDateString();
-  for (let i = 0; i < offset; i++) { const blank = document.createElement('div'); blank.className = 'heat-day empty'; map.append(blank); }
-  const fieldId = select.value;
-  for (let day = 1; day <= count; day++) {
-    const date = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    const scores = state.entries.filter(entry => entry.date === date).map(entry => entry.values[fieldId]).filter(item => item?.type === 'slider').map(item => clampScore(item.value));
-    const avg = scores.length ? scores.reduce((a, b) => a + b, 0) / scores.length : null;
-    const level = avg == null ? 0 : clampScore(avg);
-    const button = document.createElement('button'); button.type = 'button'; button.className = `heat-day${level ? ` has-value level-${level}` : ''}${date === today ? ' is-today' : ''}`;
-    button.title = avg == null ? `${day}日：記録なし` : `${day}日：平均 ${avg.toFixed(1)} / 5（${scores.length}件）`;
-    const number = document.createElement('span'); number.className = 'heat-day-number'; number.textContent = String(day);
-    const stamp = document.createElement('span'); stamp.className = 'heat-stamp';
-    if (level) { stamp.style.background = HEAT_COLORS[level]; button.addEventListener('click', () => showToast(`${month}月${day}日：${avg.toFixed(1)} / 5`)); }
-    button.append(number, stamp); map.append(button);
-  }
-}
 function exportData() {
   const blob = new Blob([JSON.stringify({ app: 'ずぼら日記', version: DATA_VERSION, exportedAt: new Date().toISOString(), fields: state.fields, entries: state.entries }, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob); const anchor = document.createElement('a');
@@ -591,12 +560,9 @@ $('#archive-search').addEventListener('input', renderArchive);
 $$('[data-period]').forEach(button => button.addEventListener('click', () => {
   activePeriod = button.dataset.period; $$('[data-period]').forEach(item => item.classList.toggle('is-active', item === button)); renderAverageCards();
 }));
-$('#heat-field-select').addEventListener('change', renderHeatMap);
-$('#heat-prev').addEventListener('click', () => { const [y, m] = heatMonth.split('-').map(Number); heatMonth = localMonthString(new Date(y, m - 2, 1)); renderHeatMap(); });
-$('#heat-next').addEventListener('click', () => { const [y, m] = heatMonth.split('-').map(Number); heatMonth = localMonthString(new Date(y, m, 1)); renderHeatMap(); });
 window.addEventListener('hashchange', () => {
   const route = location.hash.slice(1);
-  if (['write', 'analytics', 'settings', 'archive'].includes(route)) navigate(route);
+  if (['write', 'analytics', 'settings'].includes(route)) navigate(route);
 });
 
 // First render. Existing localStorage entries are migrated by normalizeState().
@@ -607,4 +573,4 @@ renderSettings();
 renderAnalytics();
 renderArchive();
 const initialRoute = location.hash.slice(1);
-if (['write', 'analytics', 'settings', 'archive'].includes(initialRoute)) navigate(initialRoute);
+if (['write', 'analytics', 'settings'].includes(initialRoute)) navigate(initialRoute);

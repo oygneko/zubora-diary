@@ -333,3 +333,8 @@ input[type="range"]::-moz-range-thumb { width: 16px; height: 16px; border: 3px s
 @media (max-width: 390px) {
   .nav-button { padding-inline: 11px; }
 }
+
+/* Full record list in the reflection view */
+.analytics-archive-panel { margin-top: 20px; padding: 22px; }
+.archive-section-heading { margin-bottom: 17px; }
+.archive-section-heading .page-intro { margin-top: 4px; }

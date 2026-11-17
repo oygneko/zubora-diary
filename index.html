@@ -54,7 +54,7 @@
           <aside class="side-column">
             <section class="soft-note"><span class="note-sparkle" aria-hidden="true">✦</span><p>毎日じゃなくていい。<br>思い出した日に、ひとつだけ。</p><small>YOUR PACE IS JUST RIGHT</small></section>
             <section class="panel mini-stats"><p class="section-kicker">YOUR LITTLE LOG</p><div class="stat-line"><span>連続で記録した最長日数</span><strong id="longest-entry-streak">0<span>日</span></strong></div><div class="stat-line"><span>記録した日</span><strong id="total-entry-days">0<span>日</span></strong></div><div class="stat-line"><span>これまでの記録</span><strong id="total-entry-count">0<span>件</span></strong></div><button class="inline-link" type="button" data-go-view="analytics">ふりかえりを見る <span aria-hidden="true">→</span></button></section>
-            <section class="panel recent-panel"><div class="panel-title-row"><div><p class="section-kicker">RECENT NOTES</p><h2>最近の記録</h2></div><button class="text-button" data-go-view="archive" type="button">一覧へ</button></div><div id="recent-entry-list" class="recent-entry-list"></div><p id="recent-empty" class="muted-empty">まだ記録はありません。</p></section>
+            <section class="panel recent-panel"><div class="panel-title-row"><div><p class="section-kicker">RECENT NOTES</p><h2>最近の記録</h2></div><button class="text-button" data-go-view="analytics" type="button">ふりかえりへ</button></div><div id="recent-entry-list" class="recent-entry-list"></div><p id="recent-empty" class="muted-empty">まだ記録はありません。</p></section>
             <p class="privacy-note">🔒 記録はこのブラウザ内に保存されます。端末変更やデータ削除に備えて、設定からバックアップをお取りください。</p>
           </aside>
         </div>
@@ -67,11 +67,12 @@
           <div class="average-grid" id="average-grid"></div>
           <div class="chart-heading"><div><p class="section-kicker">TRENDS</p><h2>数値のうつりかわり</h2></div><span class="chart-caption">直近30日・1〜5段階</span></div>
           <div class="chart-wrap" id="trend-chart" role="img" aria-label="スライダー項目の数値推移グラフ"></div>
-          <div class="heatmap-section">
-            <div class="panel-title-row heatmap-title-row"><div><p class="section-kicker">MONTHLY COLOR MAP</p><h2>月間カラーマップ</h2></div><div class="heatmap-controls"><label class="sr-only" for="heat-field-select">カラーマップに使う項目</label><select id="heat-field-select"></select><div class="month-switch"><button id="heat-prev" type="button" aria-label="前の月">‹</button><strong id="heat-title"></strong><button id="heat-next" type="button" aria-label="次の月">›</button></div></div></div>
-            <div class="heat-legend"><span><i class="heat-dot level-1"></i>1</span><span><i class="heat-dot level-2"></i>2</span><span><i class="heat-dot level-3"></i>3</span><span><i class="heat-dot level-4"></i>4</span><span><i class="heat-dot level-5"></i>5</span><small>記録した日の平均値</small></div>
-            <div class="heatmap" id="heat-map"></div>
-          </div>
+        </section>
+        <section class="panel archive-panel analytics-archive-panel" aria-labelledby="analytics-archive-heading">
+          <div class="panel-title-row archive-section-heading"><div><p class="section-kicker">YOUR SAVED DAYS</p><h2 id="analytics-archive-heading">記録の一覧</h2><p class="page-intro">これまでに書いたことを読み返せます。</p></div></div>
+          <div class="archive-toolbar"><div class="archive-count"><strong id="archive-count">0</strong><span> 件の記録</span></div><label class="search-box"><span class="sr-only">記録を検索</span><span aria-hidden="true">⌕</span><input id="archive-search" type="search" placeholder="日付や内容で検索"></label></div>
+          <div class="entry-list" id="entry-list"></div>
+          <div class="empty-state" id="archive-empty" hidden><span class="empty-icon">☁</span><h2>まだ記録がありません</h2><p>最初の記録は、スライダーをひとつ動かすだけでも大丈夫。</p><button class="button button-primary" data-go-view="write" type="button">ホームへ戻る</button></div>
         </section>
       </section>
 
@@ -84,10 +85,6 @@
         </div>
       </section>
 
-      <section class="view" id="view-archive" aria-labelledby="archive-heading" hidden>
-        <div class="page-heading"><p class="eyebrow">YOUR SAVED DAYS</p><h1 id="archive-heading">記録の一覧</h1><p class="page-intro">これまでに書いたことを読み返せます。</p></div>
-        <section class="panel archive-panel"><div class="archive-toolbar"><div class="archive-count"><strong id="archive-count">0</strong><span> 件の記録</span></div><label class="search-box"><span class="sr-only">記録を検索</span><span aria-hidden="true">⌕</span><input id="archive-search" type="search" placeholder="日付や内容で検索"></label></div><div class="entry-list" id="entry-list"></div><div class="empty-state" id="archive-empty" hidden><span class="empty-icon">☁</span><h2>まだ記録がありません</h2><p>最初の記録は、スライダーをひとつ動かすだけでも大丈夫。</p><button class="button button-primary" data-go-view="write" type="button">ホームへ戻る</button></div></section>
-      </section>
     </main>
     <footer class="site-footer"><span>ずぼら日記 <span aria-hidden="true">·</span> YOUR EASY DAILY LOG</span><span>自分のペースで、ゆるく。</span></footer>
   </div>
